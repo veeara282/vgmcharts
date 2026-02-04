@@ -31,14 +31,15 @@ Output to CSV file (for now) or database (once set up).
 
 '''
 
-from bulba_utils import bp_wikitext_url
+import bulba_utils
 
 
 def extract():
     ost_list_page_title = "List of Pokémon music CDs"
-    api_url = bp_wikitext_url(ost_list_page_title)
-    # Stub: just print the URL for now
-    print(api_url)
+
+    # Get expanded page wikitext
+    wikitext = bulba_utils.get_bp_wikitext(ost_list_page_title)
+    print(wikitext)
 
 
 def main() -> None:

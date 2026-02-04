@@ -34,8 +34,11 @@ def bp_wikitext_url(page_title: str) -> str:
 
 def get_bp_wikitext(page_title: str) -> str:
     api_url = bp_wikitext_url(page_title)
+
     # MediaWiki output will be wrapped in JSON object
+    print(f"Downloading page data from {api_url}...\n")
     mw_output_response = requests.get(api_url)
+
     # Parse JSON and get wikitext
     mw_output_json = mw_output_response.json()
-    page_wikitext = mw_output_json["expandtemplates"]["wikitext"]
+    return mw_output_json["expandtemplates"]["wikitext"]
