@@ -41,7 +41,8 @@ def extract() -> dict:
     # Get expanded page wikitext
     wikitext = bulba_utils.get_bp_wikitext(ost_list_page_title)
 
-    # Since the tables are nested, we extract the tables at indices 1 and 3
+    # Since the tables are nested, we extract the tables at indices 1 and 3.
+    # The tables at indices 0 and 2 are tables that contain the main tables.
     parsed = wtp.parse(wikitext)
 
     en_release_table = parsed.tables[1].data()
