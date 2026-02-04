@@ -32,18 +32,35 @@ Output to CSV file (for now) or database (once set up).
 '''
 
 import bulba_utils
+import wikitextparser as wtp
 
 
-def extract():
+def extract() -> dict:
     ost_list_page_title = "List of Pokémon music CDs"
 
     # Get expanded page wikitext
     wikitext = bulba_utils.get_bp_wikitext(ost_list_page_title)
-    print(wikitext)
+
+    # Since the tables are nested, we extract the tables at indices 1 and 3
+    parsed = wtp.parse(wikitext)
+
+    en_release_table = parsed.tables[1].data()
+    ja_release_table = parsed.tables[3].data()
+
+    print("English releases:")
+    print(en_release_table)
+    print()
+    print("Japanese releases:")
+    print(ja_release_table)
+
+    return {
+        "en_releases": en_release_table,
+        "ja_releases": ja_release_table,
+    }
 
 
 def main() -> None:
-    extract()
+    releases_raw = extract()
 
 
 if __name__ == "__main__":
