@@ -31,11 +31,16 @@ Output to CSV file (for now) or database (once set up).
 
 '''
 
-import bulba_utils
+import os
+from pathlib import Path
+
+import pandas as pd
 import wikitextparser as wtp
 
+import bulba_utils
 
-def extract() -> dict:
+
+def extract_wikitables() -> dict:
     ost_list_page_title = "List of Pokémon music CDs"
 
     # Get expanded page wikitext
@@ -48,20 +53,52 @@ def extract() -> dict:
     en_release_table = parsed.tables[1].data()
     ja_release_table = parsed.tables[3].data()
 
+    return {
+        "en": en_release_table,
+        "ja": ja_release_table,
+    }
+
+
+def make_dataframe(table: list[list[str]]) -> pd.DataFrame:
+    # Table has header row
+    return pd.DataFrame(data=table[1:], columns=table[0])
+
+
+def transform_wikitables_to_df(releases_raw: dict) -> dict:
+    en_releases_df = make_dataframe(releases_raw["en"])
+    ja_releases_df = make_dataframe(releases_raw["ja"])
+
     print("English releases:")
-    print(en_release_table)
+    print(en_releases_df.head())
     print()
     print("Japanese releases:")
-    print(ja_release_table)
+    print(ja_releases_df.head())
+
+    print(os.getcwd())
+    bulba_data_path = Path(os.getcwd(), "data", "bulbapedia")
+    bulba_raw_data_path = bulba_data_path / "raw"
+    bulba_raw_data_path.mkdir(exist_ok=True)
+
+    print(f"Created raw data directory {bulba_raw_data_path}")
+
+    en_releases_csv_path = bulba_raw_data_path / "ost_releases_info.en.csv"
+    ja_releases_csv_path = bulba_raw_data_path / "ost_releases_info.ja.csv"
+
+    print(f"Writing English release data to {en_releases_csv_path}...")
+    en_releases_df.to_csv(en_releases_csv_path)
+
+    print(f"Writing Japanese release data to {ja_releases_csv_path}...")
+    ja_releases_df.to_csv(ja_releases_csv_path)
 
     return {
-        "en_releases": en_release_table,
-        "ja_releases": ja_release_table,
+        "en": en_releases_df,
+        "ja": ja_releases_df,
     }
 
 
 def main() -> None:
-    releases_raw = extract()
+    releases_raw = extract_wikitables()
+    transform_wikitables_to_df(releases_raw)
 
 
 if __name__ == "__main__":
