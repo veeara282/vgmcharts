@@ -7,8 +7,14 @@ Our data pipelines are written in Python, and we use [`uv`](https://docs.astral.
 
 It is recommended that all Python programs and `uv` commands be run from the repository root.
 
-To set up a virtual environment in `uv`, run `uv venv` from the repository root, then install the dependencies using
-`uv pip install -r pyproject.toml`. (Note: `uv pip install --project .` does not work.)
+To set up a virtual environment in `uv`, run the following commands from the repository root:
+
+```sh
+uv venv
+uv pip install -r pyproject.toml
+```
+
+(Note: `uv pip install --project .` does not work.)
 
 Pipelines should be run via `uv`:
 
