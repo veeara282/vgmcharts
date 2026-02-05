@@ -6,8 +6,8 @@ from urllib.parse import urlencode
 
 import requests
 
-
 API_BASE_URL = "https://bulbapedia.bulbagarden.net/w/api.php"
+
 
 def bp_wikitext_api_params(page_title: str) -> dict:
     """

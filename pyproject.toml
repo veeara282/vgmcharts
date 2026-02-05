@@ -9,3 +9,8 @@ dependencies = [
     "requests>=2.32.5",
     "wikitextparser>=0.56.4",
 ]
+
+[dependency-groups]
+dev = [
+    "black>=26.1.0",
+]

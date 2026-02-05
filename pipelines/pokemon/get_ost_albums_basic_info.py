@@ -1,4 +1,4 @@
-'''
+"""
 Download the list of English OST releases from Bulbapedia and transform it into a usable CSV file.
 
 Steps:
@@ -29,7 +29,7 @@ short_description: Score for ''[[M01|Mewtwo Strikes Back]]'' and ''[[PK01|Pikach
 
 Output to CSV file (for now) or database (once set up).
 
-'''
+"""
 
 import os
 from pathlib import Path
