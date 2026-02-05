@@ -1,0 +1,10 @@
+[project]
+name = "vgmcharts"
+version = "0.1.0"
+description = "Explore trending video game music"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.32.5",
+    "wikitextparser>=0.56.4",
+]
