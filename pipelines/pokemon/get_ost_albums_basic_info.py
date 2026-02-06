@@ -31,6 +31,7 @@ Output to CSV file (for now) or database (once set up).
 
 """
 
+import logging
 import os
 from pathlib import Path
 
@@ -38,6 +39,8 @@ import pandas as pd
 import wikitextparser as wtp
 
 import bulba_utils
+
+logger = logging.getLogger(__name__)
 
 
 def extract_wikitables() -> dict:
@@ -68,26 +71,25 @@ def transform_wikitables_to_df(releases_raw: dict) -> dict:
     en_releases_df = make_dataframe(releases_raw["en"])
     ja_releases_df = make_dataframe(releases_raw["ja"])
 
-    print("English releases:")
-    print(en_releases_df.head())
-    print()
-    print("Japanese releases:")
-    print(ja_releases_df.head())
+    logger.info("English releases:")
+    logger.info(en_releases_df.head())
+    logger.info("Japanese releases:")
+    logger.info(ja_releases_df.head())
 
-    print(os.getcwd())
+    logger.info(os.getcwd())
     bulba_data_path = Path(os.getcwd(), "data", "bulbapedia")
     bulba_raw_data_path = bulba_data_path / "raw"
     bulba_raw_data_path.mkdir(exist_ok=True)
 
-    print(f"Created raw data directory {bulba_raw_data_path}")
+    logger.info(f"Created raw data directory {bulba_raw_data_path}")
 
     en_releases_csv_path = bulba_raw_data_path / "ost_releases_info.en.csv"
     ja_releases_csv_path = bulba_raw_data_path / "ost_releases_info.ja.csv"
 
-    print(f"Writing English release data to {en_releases_csv_path}...")
+    logger.info(f"Writing English release data to {en_releases_csv_path}...")
     en_releases_df.to_csv(en_releases_csv_path)
 
-    print(f"Writing Japanese release data to {ja_releases_csv_path}...")
+    logger.info(f"Writing Japanese release data to {ja_releases_csv_path}...")
     ja_releases_df.to_csv(ja_releases_csv_path)
 
     return {
