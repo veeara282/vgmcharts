@@ -2,9 +2,12 @@
 Utility functions for extracting Bulbapedia content
 """
 
+import logging
 from urllib.parse import urlencode
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 API_BASE_URL = "https://bulbapedia.bulbagarden.net/w/api.php"
 
@@ -36,7 +39,7 @@ def get_bp_wikitext(page_title: str) -> str:
     api_url = bp_wikitext_url(page_title)
 
     # MediaWiki output will be wrapped in JSON object
-    print(f"Downloading page data from {api_url}...\n")
+    logger.info(f"Downloading page data from {api_url}...\n")
     mw_output_response = requests.get(api_url)
 
     # Parse JSON and get wikitext
