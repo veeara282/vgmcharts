@@ -1,0 +1,6 @@
+# Copied from https://github.com/astral-sh/uv-docker-example/blob/main/.dockerignore
+# See https://github.com/astral-sh/uv-docker-example/blob/main/LICENSE-MIT
+# and https://github.com/astral-sh/uv-docker-example/blob/main/LICENSE-APACHE for license info.
+
+# Exclude the project virtual environment from image builds
+.venv
