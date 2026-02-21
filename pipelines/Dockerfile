@@ -17,7 +17,7 @@ RUN groupadd --system --gid 999 pipelines \
 # Install the project into `/app`
 WORKDIR /app
 
-# Enable bytecode compilation
+# Precompile `.pyc` files during installation, so container starts up faster
 ENV UV_COMPILE_BYTECODE=1
 
 # Copy from the cache instead of linking since it's a mounted volume
@@ -44,16 +44,13 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Reset the entrypoint, don't invoke `uv`
-ENTRYPOINT []
+# Keep explicit entrypoint so `docker run image <args>` just works
+ENTRYPOINT ["uv", "run"]
 
 # Use the non-root user to run our application
 USER pipelines
 
-# Run the FastAPI application by default
-# Uses `uv run` to sync dependencies on startup, respecting UV_NO_DEV
-# Uses `fastapi dev` to enable hot-reloading when the `watch` sync occurs
-# Uses `--host 0.0.0.0` to allow access from outside the container
-# Note in production, you should use `fastapi run` instead
-CMD ["uv", "run", "fastapi", "dev", "--host", "0.0.0.0", "src/uv_docker_example"]
-# TODO: Replace this command with the actual entrypoint for pipelines
+# Default job (currently the only pipeline)
+# Pipeline filenames are relative to the `pipelines/` directory
+# TODO: add support for other pipelines when added (preferably via `python -m <module>`)
+CMD ["pokemon/get_ost_albums_basic_info.py"]
