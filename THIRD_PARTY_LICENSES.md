@@ -5,7 +5,7 @@ The relevant open source licenses are reproduced below.
 
 ## `uv-docker-example`
 
-Repository: https://github.com/astral-sh/uv-docker-example
+Repository: [astral-sh/uv-docker-example](https://github.com/astral-sh/uv-docker-example)
 
 The original repository is licensed under MIT OR Apache 2.0. It is being used under MIT.
 
