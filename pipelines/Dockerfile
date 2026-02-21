@@ -2,8 +2,9 @@
 
 # Adapted from https://github.com/astral-sh/uv-docker-example/blob/main/Dockerfile
 # Portions copyright (c) 2025 Astral Software Inc.
-# See https://github.com/astral-sh/uv-docker-example/blob/main/LICENSE-MIT
-# and https://github.com/astral-sh/uv-docker-example/blob/main/LICENSE-APACHE for license info.
+# The original file is dual-licensed under MIT OR Apache 2.0.
+# This file is redistributed under the MIT License.
+# See `THIRD_PARTY_LICENSES.md` for license info.
 
 # Astral.sh provides official Docker images with uv built-in.
 # This image comes with Python 3.13.
