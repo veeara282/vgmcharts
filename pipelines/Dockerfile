@@ -1,6 +1,6 @@
 # Idea: Python 3.13 + uv setup, install dependencies and run thru uv
 
-# This file is a derivative work of https://github.com/astral-sh/uv-docker-example/blob/main/Dockerfile
+# Adapted from https://github.com/astral-sh/uv-docker-example/blob/main/Dockerfile
 # Portions copyright (c) 2025 Astral Software Inc.
 # See https://github.com/astral-sh/uv-docker-example/blob/main/LICENSE-MIT
 # and https://github.com/astral-sh/uv-docker-example/blob/main/LICENSE-APACHE for license info.
