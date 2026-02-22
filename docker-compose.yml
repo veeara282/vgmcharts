@@ -1,13 +1,13 @@
 # File created with guidance from ChatGPT (GPT-5.2 with project context)
 services:
   db:
-    image: postgres:16
+    image: postgres:18.2-trixie
     environment:
       POSTGRES_USER: vgm
       POSTGRES_PASSWORD: vgm
       POSTGRES_DB: vgmcharts
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vgm -d vgmcharts"]
       interval: 5s
@@ -22,17 +22,17 @@ services:
     volumes:
       - objdata:/data
 
-  api:
-    build: ./api
-    environment:
-      DATABASE_URL: postgres://vgm:vgm@db:5432/vgmcharts
-      S3_ENDPOINT: http://objectstore:9000
-      S3_BUCKET: poke-lake
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
+  # api:
+  #   build: ./api
+  #   environment:
+  #     DATABASE_URL: postgres://vgm:vgm@db:5432/vgmcharts
+  #     S3_ENDPOINT: http://objectstore:9000
+  #     S3_BUCKET: poke-lake
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8080:8080"
 
   pipelines:
     build: ./pipelines
