@@ -86,11 +86,29 @@ def transform_wikitables_to_df(releases_raw: dict) -> dict:
     en_releases_csv_path = bulba_raw_data_path / "ost_releases_info.en.csv"
     ja_releases_csv_path = bulba_raw_data_path / "ost_releases_info.ja.csv"
 
-    logger.info(f"Writing English release data to {en_releases_csv_path}...")
-    en_releases_df.to_csv(en_releases_csv_path)
+    # XXX: Temporarily writing data to a directory in the repository so it can be
+    # versioned. We need to check write access, since data files from the repository are
+    # not writable in the Docker environment.
+    # Eventually, we will transition to storing all raw data in a RustFS or equivalent
+    # S3-like datastore.
+    def try_write(path: Path, data: pd.DataFrame, log_msg: str):
+        if os.access(path, os.W_OK):
+            logger.info(log_msg)
+            data.to_csv(path)
+        else:
+            logger.warning(f"Data file {path} is not writable. Write not attempted.")
 
-    logger.info(f"Writing Japanese release data to {ja_releases_csv_path}...")
-    ja_releases_df.to_csv(ja_releases_csv_path)
+    try_write(
+        en_releases_csv_path,
+        en_releases_df,
+        f"Writing English release data to {en_releases_csv_path}...",
+    )
+
+    try_write(
+        ja_releases_csv_path,
+        ja_releases_df,
+        f"Writing Japanese release data to {ja_releases_csv_path}...",
+    )
 
     return {
         "en": en_releases_df,

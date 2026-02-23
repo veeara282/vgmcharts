@@ -1,0 +1,52 @@
+# File created with guidance from ChatGPT (GPT-5.2 with project context)
+services:
+  db:
+    image: postgres:18.2-trixie
+    environment:
+      POSTGRES_USER: vgm
+      POSTGRES_PASSWORD: vgm
+      POSTGRES_DB: vgmcharts
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vgm -d vgmcharts"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  objectstore:
+    image: rustfs/rustfs:latest
+    # (placeholder - depends on RustFS's documented command/env/ports)
+    ports:
+      - "9000:9000"
+    volumes:
+      - objdata:/data
+
+  # api:
+  #   build: ./api
+  #   environment:
+  #     DATABASE_URL: postgres://vgm:vgm@db:5432/vgmcharts
+  #     S3_ENDPOINT: http://objectstore:9000
+  #     S3_BUCKET: poke-lake
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8080:8080"
+
+  pipelines:
+    build: ./pipelines
+    environment:
+      DATABASE_URL: postgres://...
+      S3_ENDPOINT: http://objectstore:9000
+      S3_BUCKET: poke-lake
+    depends_on:
+      db:
+        condition: service_healthy
+      # TODO: Add a real healthcheck for RustFS
+      objectstore:
+        condition: service_started
+
+volumes:
+  pgdata:
+  objdata:
