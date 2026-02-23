@@ -3,13 +3,13 @@ services:
   db:
     image: postgres:18.2-trixie
     environment:
-      POSTGRES_USER: vgm
-      POSTGRES_PASSWORD: vgm
-      POSTGRES_DB: vgmcharts
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - pgdata:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vgm -d vgmcharts"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -18,28 +18,33 @@ services:
     image: rustfs/rustfs:latest
     # (placeholder - depends on RustFS's documented command/env/ports)
     ports:
-      - "9000:9000"
+      - "${S3_PORT}:${S3_PORT}"
     volumes:
       - objdata:/data
 
-  # api:
-  #   build: ./api
-  #   environment:
-  #     DATABASE_URL: postgres://vgm:vgm@db:5432/vgmcharts
-  #     S3_ENDPOINT: http://objectstore:9000
-  #     S3_BUCKET: poke-lake
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   ports:
-  #     - "8080:8080"
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      S3_ENDPOINT: ${S3_ENDPOINT}:${S3_PORT}
+      S3_BUCKET: ${S3_BUCKET}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:${API_PORT}/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   pipelines:
     build: ./pipelines
     environment:
       DATABASE_URL: postgres://...
-      S3_ENDPOINT: http://objectstore:9000
-      S3_BUCKET: poke-lake
+      S3_ENDPOINT: ${S3_ENDPOINT}:${S3_PORT}
+      S3_BUCKET: ${S3_BUCKET}
     depends_on:
       db:
         condition: service_healthy
