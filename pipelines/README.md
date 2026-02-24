@@ -13,8 +13,8 @@ uv pip install -r pyproject.toml
 
 (Note: `uv pip install --project .` does not work.)
 
-Pipelines should be run via `uv`:
+Pipelines should be run as modules via `uv`:
 
 ```sh
-uv run ./pokemon/get_ost_albums_basic_info.py
+uv run python -m pokemon.get_ost_albums_basic_info
 ```
