@@ -17,3 +17,5 @@ The server starts on port **1337**. Verify with:
 ```sh
 curl http://localhost:1337/health
 ```
+
+TODO: make healthcheck dependent on the API querying the db
