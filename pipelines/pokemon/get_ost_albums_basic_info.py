@@ -38,7 +38,7 @@ from pathlib import Path
 import pandas as pd
 import wikitextparser as wtp
 
-import bulba_utils
+from pokemon import bulba_utils
 
 logger = logging.getLogger(__name__)
 
