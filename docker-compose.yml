@@ -43,7 +43,10 @@ services:
     build: ./api
     environment:
       DATABASE_URL: ${POSTGRES_DB_URL}
-      S3_ENDPOINT: ${S3_ENDPOINT}
+      AWS_ENDPOINT_URL_S3: ${S3_ENDPOINT}
+      AWS_ACCESS_KEY_ID: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
+      AWS_SECRET_ACCESS_KEY: ${RUSTFS_SECRET_KEY}
+      AWS_DEFAULT_REGION: us-east-1
       S3_BUCKET: ${S3_BUCKET}
     depends_on:
       db:
@@ -60,7 +63,10 @@ services:
     build: ./pipelines
     environment:
       DATABASE_URL: ${POSTGRES_DB_URL}
-      S3_ENDPOINT: ${S3_ENDPOINT}
+      AWS_ENDPOINT_URL_S3: ${S3_ENDPOINT}
+      AWS_ACCESS_KEY_ID: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
+      AWS_SECRET_ACCESS_KEY: ${RUSTFS_SECRET_KEY}
+      AWS_DEFAULT_REGION: us-east-1
       S3_BUCKET: ${S3_BUCKET}
     depends_on:
       db:
