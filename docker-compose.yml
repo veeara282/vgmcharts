@@ -42,8 +42,8 @@ services:
   api:
     build: ./api
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      S3_ENDPOINT: ${S3_ENDPOINT}:${S3_PORT}
+      DATABASE_URL: ${POSTGRES_DB_URL}
+      S3_ENDPOINT: ${S3_ENDPOINT}
       S3_BUCKET: ${S3_BUCKET}
     depends_on:
       db:
@@ -59,8 +59,8 @@ services:
   pipelines:
     build: ./pipelines
     environment:
-      DATABASE_URL: postgres://...
-      S3_ENDPOINT: ${S3_ENDPOINT}:${S3_PORT}
+      DATABASE_URL: ${POSTGRES_DB_URL}
+      S3_ENDPOINT: ${S3_ENDPOINT}
       S3_BUCKET: ${S3_BUCKET}
     depends_on:
       db:
