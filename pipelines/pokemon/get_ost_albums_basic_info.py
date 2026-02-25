@@ -77,7 +77,7 @@ def transform_wikitables_to_df(releases_raw: dict) -> dict:
     logger.info(ja_releases_df.head())
 
     logger.info(os.getcwd())
-    bulba_data_path = Path(os.getcwd(), "data", "bulbapedia")
+    bulba_data_path = bulba_utils.get_bp_data_path()
     bulba_raw_data_path = bulba_data_path / "raw"
     bulba_raw_data_path.mkdir(exist_ok=True)
 
