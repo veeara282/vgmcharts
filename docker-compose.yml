@@ -14,19 +14,39 @@ services:
       timeout: 3s
       retries: 20
 
+  # Recommended settings borrowed from https://www.bitdoze.com/rustfs-self-host/
   objectstore:
     image: rustfs/rustfs:latest
-    # (placeholder - depends on RustFS's documented command/env/ports)
     ports:
-      - "${S3_PORT}:${S3_PORT}"
+      - "${S3_PORT}:${S3_PORT}"  # S3 interface
+      - "${RUSTFS_CONSOLE_PORT}:${RUSTFS_CONSOLE_PORT}"  # web console
+    environment:
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: 0.0.0.0:${S3_PORT}
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:${RUSTFS_CONSOLE_PORT}
+      RUSTFS_CONSOLE_ENABLE: true
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+      RUSTFS_CORS_ALLOWED_ORIGINS: "*"
+      RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS: "*"
     volumes:
       - objdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${S3_PORT}/health && curl -f http://localhost:${RUSTFS_CONSOLE_PORT}/rustfs/console/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
 
   api:
     build: ./api
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      S3_ENDPOINT: ${S3_ENDPOINT}:${S3_PORT}
+      DATABASE_URL: ${POSTGRES_DB_URL}
+      AWS_ENDPOINT_URL_S3: ${S3_ENDPOINT}
+      AWS_ACCESS_KEY_ID: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
+      AWS_SECRET_ACCESS_KEY: ${RUSTFS_SECRET_KEY}
+      AWS_DEFAULT_REGION: us-east-1
       S3_BUCKET: ${S3_BUCKET}
     depends_on:
       db:
@@ -42,15 +62,17 @@ services:
   pipelines:
     build: ./pipelines
     environment:
-      DATABASE_URL: postgres://...
-      S3_ENDPOINT: ${S3_ENDPOINT}:${S3_PORT}
+      DATABASE_URL: ${POSTGRES_DB_URL}
+      AWS_ENDPOINT_URL_S3: ${S3_ENDPOINT}
+      AWS_ACCESS_KEY_ID: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
+      AWS_SECRET_ACCESS_KEY: ${RUSTFS_SECRET_KEY}
+      AWS_DEFAULT_REGION: us-east-1
       S3_BUCKET: ${S3_BUCKET}
     depends_on:
       db:
         condition: service_healthy
-      # TODO: Add a real healthcheck for RustFS
       objectstore:
-        condition: service_started
+        condition: service_healthy
 
 volumes:
   pgdata:

@@ -49,12 +49,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Keep explicit entrypoint so `docker run image <args>` just works
-ENTRYPOINT ["uv", "run"]
+ENTRYPOINT ["uv", "run", "python"]
 
 # Use the non-root user to run our application
 USER pipelines
 
-# Default job (currently the only pipeline)
-# Pipeline filenames are relative to the `pipelines/` directory
-# TODO: add support for other pipelines when added (preferably via `python -m <module>`)
-CMD ["pokemon/get_ost_albums_basic_info.py"]
+# Pipelines are run as modules via `python -m <module>`
+CMD ["-m", "pokemon.get_ost_albums_basic_info"]
