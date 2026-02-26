@@ -1,2 +1,4 @@
 # API results should not be checked into Git
 *.json
+soundexchange/
+spotify/
