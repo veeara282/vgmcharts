@@ -39,15 +39,24 @@ import pandas as pd
 import wikitextparser as wtp
 
 from pokemon import bulba_utils
+from utils import object_store
 
 logger = logging.getLogger(__name__)
 
 
 def extract_wikitables() -> dict:
-    ost_list_page_title = "List of Pokémon music CDs"
+    ost_list_page_title = "List of Pokémon music CDs".replace(" ", "_")
 
     # Get expanded page wikitext
     wikitext = bulba_utils.get_bp_wikitext(ost_list_page_title)
+
+    # Save to object store
+    # TODO: Implement high-level interface with versioning
+    object_key = "sources/bulbapedia/raw/" + ost_list_page_title
+    wikitext_obj = object_store.get_object(object_key)
+
+    wikitext_obj.put(Body=wikitext)
+    logger.info(f"Successfully uploaded wikitext to object storage, key: {object_key}")
 
     # Since the tables are nested, we extract the tables at indices 1 and 3.
     # The tables at indices 0 and 2 are tables that contain the main tables.
