@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "boto3>=1.42.56",
     "pandas>=3.0.0",
+    "pyarrow>=23.0.1",
     "requests>=2.32.5",
     "wikitextparser>=0.56.4",
 ]
