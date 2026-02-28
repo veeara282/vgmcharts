@@ -5,6 +5,7 @@ Utility functions for extracting Bulbapedia content
 from dataclasses import dataclass
 import datetime
 import logging
+import re
 from urllib.parse import urlencode
 
 import dateutil
@@ -27,6 +28,7 @@ class RevisionID:
 
     id: int
     dt: datetime.datetime
+
 
 @dataclass
 class StoredRevision:
@@ -118,7 +120,9 @@ class BulbapediaPage:
 
     def s3_put_wikitext(self):
         # Generate object key with version based on timestamp
-        object_key = f"sources/bulbapedia/raw/{self.title}/revid={self.latest_rev.id}.wikitext"
+        object_key = (
+            f"sources/bulbapedia/raw/{self.title}/revid={self.latest_rev.id}.wikitext"
+        )
 
         # Upload wikitext to object storage
         remote_object = object_store.get_object(object_key)
@@ -126,10 +130,20 @@ class BulbapediaPage:
         logger.info(
             f"Successfully uploaded wikitext to object storage, key: {object_key}"
         )
-    
+
     def s3_list_stored_revisions(self):
         key_prefix = f"sources/bulbapedia/raw/{self.title}"
 
         keys_list = object_store.list_objects_in_dir(key_prefix)
 
-        return keys_list
+        pattern = re.compile("revid=(\\d+)")
+        revisions = []
+
+        for key in keys_list:
+            # revision ID is the first capture group
+            match = pattern.match(key)
+            rev_id = int(match.group(1))
+
+            revisions.append(StoredRevision(self.title, rev_id, key))
+
+        return revisions
