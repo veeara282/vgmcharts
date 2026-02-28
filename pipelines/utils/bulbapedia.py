@@ -2,6 +2,7 @@
 Utility functions for extracting Bulbapedia content
 """
 
+from dataclasses import dataclass
 import datetime
 import logging
 from urllib.parse import urlencode
@@ -13,7 +14,19 @@ from utils import object_store
 
 logger = logging.getLogger(__name__)
 
+# The classic MediaWiki Action API (https://www.mediawiki.org/wiki/API:Action_API)
 API_BASE_URL = "https://bulbapedia.bulbagarden.net/w/api.php"
+
+# The newer MediaWiki REST API (https://www.mediawiki.org/wiki/API:REST_API)
+REST_API_BASE_URL = "https://bulbapedia.bulbagarden.net/w/rest.php/v1"
+
+
+@dataclass
+class RevisionID:
+    """Contains basic metadata about a wiki page revision."""
+
+    id: int
+    dt: datetime.datetime
 
 
 def bp_wikitext_api_params(page_title: str) -> dict:
@@ -45,6 +58,19 @@ class BulbapediaPage:
 
     def get_title(self):
         return self.title
+
+    def mw_get_latest_revision_metadata(self):
+        # Fetch only the metadata (no wikitext)
+        api_url = REST_API_BASE_URL + f"/page/{self.title}/bare"
+
+        mw_output_response = requests.get(api_url)
+        mw_output_json = mw_output_response.json()
+
+        self.latest_rev = RevisionID(
+            mw_output_json["latest"]["id"],
+            dateutil.parser.parse(mw_output_json["latest"]["timestamp"]),
+        )
+        return self.latest_rev
 
     def mw_get_wikitext_expanded(self):
         """
