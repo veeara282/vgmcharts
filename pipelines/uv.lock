@@ -490,6 +490,7 @@ dependencies = [
     { name = "boto3" },
     { name = "pandas" },
     { name = "pyarrow" },
+    { name = "python-dateutil" },
     { name = "requests" },
     { name = "wikitextparser" },
 ]
@@ -504,6 +505,7 @@ requires-dist = [
     { name = "boto3", specifier = ">=1.42.56" },
     { name = "pandas", specifier = ">=3.0.0" },
     { name = "pyarrow", specifier = ">=23.0.1" },
+    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "wikitextparser", specifier = ">=0.56.4" },
 ]
