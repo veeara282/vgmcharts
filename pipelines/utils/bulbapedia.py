@@ -117,9 +117,7 @@ class BulbapediaPage:
         )
 
     def s3_list_stored_revisions(self):
-        key_prefix = self._object_key_prefix()
-
-        keys_list = object_store.list_objects_in_dir(key_prefix)
+        keys_list = object_store.list_objects_in_dir(self._object_key_prefix())
 
         logger.info(f"Found keys: {keys_list}")
 
