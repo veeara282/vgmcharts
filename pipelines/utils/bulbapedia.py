@@ -138,6 +138,8 @@ class BulbapediaPage:
 
         keys_list = object_store.list_objects_in_dir(key_prefix)
 
+        logger.info(f"Found keys: {keys_list}")
+
         pattern = re.compile("revid=(\\d+)")
         revisions = []
 
@@ -147,6 +149,8 @@ class BulbapediaPage:
                 # revision ID is the first capture group
                 rev_id = int(match.group(1))
                 revisions.append(StoredRevision(self.title, rev_id, key))
+        
+        logger.info(f"Revisions: {revisions}")
 
         return revisions
 
