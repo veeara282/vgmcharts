@@ -9,6 +9,8 @@ from urllib.parse import urlencode
 import dateutil
 import requests
 
+from utils import object_store
+
 logger = logging.getLogger(__name__)
 
 API_BASE_URL = "https://bulbapedia.bulbagarden.net/w/api.php"
@@ -60,8 +62,9 @@ class BulbapediaPage:
         mw_output_response = requests.get(api_url)
 
         # Parse server-side datetime in response headers.
-        # Note: The HTTP specification requires the server to provide a date header in
-        # HTTP responses unless the server cannot determine the time.
+        # Note: The server is always required to provide a date header in HTTP responses
+        # unless it cannot determine the time. We collect client-side timestamps in case
+        # the server does not provide one.
         # Note: the header dict accepts case-insensitive keys.
         response_dt_str = mw_output_response.headers.get("date")
         if response_dt_str:
@@ -69,8 +72,23 @@ class BulbapediaPage:
 
         # Compute client-side response time, the time at which the client finished
         # reading the response (= datetime + timedelta)
-        self.mw_response_client_dt = self.mw_request_client_dt + mw_output_response.elapsed
+        self.mw_response_client_dt = (
+            self.mw_request_client_dt + mw_output_response.elapsed
+        )
 
         # Parse JSON and get wikitext
         mw_output_json = mw_output_response.json()
-        return mw_output_json["expandtemplates"]["wikitext"]
+        self.wikitext_expanded = mw_output_json["expandtemplates"]["wikitext"]
+
+        return self.wikitext_expanded
+
+    def s3_put_wikitext(self):
+        # Generate object key with version based on timestamp
+        object_key = f"sources/bulbapedia/raw/{self.title}/dt={self.mw_response_server_dt.isoformat()}.wikitext"
+
+        # Upload wikitext to object storage
+        remote_object = object_store.get_object(object_key)
+        remote_object.put(Body=self.wikitext_expanded)
+        logger.info(
+            f"Successfully uploaded wikitext to object storage, key: {object_key}"
+        )

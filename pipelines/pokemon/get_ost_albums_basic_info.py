@@ -49,12 +49,7 @@ def extract_wikitables() -> dict:
     wikitext = ost_list_page.mw_get_wikitext_expanded()
 
     # Save to object store
-    # TODO: Implement high-level interface with versioning
-    object_key = "sources/bulbapedia/raw/" + ost_list_page.get_title()
-    wikitext_obj = object_store.get_object(object_key)
-
-    wikitext_obj.put(Body=wikitext)
-    logger.info(f"Successfully uploaded wikitext to object storage, key: {object_key}")
+    ost_list_page.s3_put_wikitext()
 
     # Since the tables are nested, we extract the tables at indices 1 and 3.
     # The tables at indices 0 and 2 are tables that contain the main tables.
