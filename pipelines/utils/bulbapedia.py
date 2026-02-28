@@ -39,7 +39,7 @@ class StoredRevision:
     object_key: str
 
 
-def bp_wikitext_api_params(page_title: str) -> dict:
+def _bp_wikitext_api_params(page_title: str) -> dict:
     """
     This dict can optionally be passed to requests.get() as query params
     """
@@ -51,13 +51,13 @@ def bp_wikitext_api_params(page_title: str) -> dict:
     }
 
 
-def bp_wikitext_url(page_title: str) -> str:
+def _bp_wikitext_url(page_title: str) -> str:
     """
     Uses MediaWiki's expandtemplates functionality to return the expanded wikitext for a page on Bulbapedia.
 
     More info: https://www.mediawiki.org/wiki/API:Expandtemplates
     """
-    query_string = urlencode(bp_wikitext_api_params(page_title))
+    query_string = urlencode(_bp_wikitext_api_params(page_title))
 
     return API_BASE_URL + "?" + query_string
 
@@ -65,9 +65,6 @@ def bp_wikitext_url(page_title: str) -> str:
 class BulbapediaPage:
     def __init__(self, title: str):
         self.title = title.replace(" ", "_")
-
-    def get_title(self):
-        return self.title
 
     def mw_get_latest_revision_metadata(self):
         # Fetch only the metadata (no wikitext)
@@ -86,7 +83,7 @@ class BulbapediaPage:
         """
         Retrieves the expanded wikitext for this page from Bulbapedia using the MediaWiki API.
         """
-        api_url = bp_wikitext_url(self.title)
+        api_url = _bp_wikitext_url(self.title)
 
         # MediaWiki output will be wrapped in JSON object
         logger.info(f"Downloading page data from {api_url}...\n")
@@ -141,10 +138,12 @@ class BulbapediaPage:
         # First check if we have any saved revisions
         saved_revisions = self.s3_list_stored_revisions()
 
+        # Check the latest online revision ID
+        latest_online_rev = self.mw_get_latest_revision_metadata().id
+
         if len(saved_revisions) > 0:
             latest_saved_rev = max(rev.rev_id for rev in saved_revisions)
             # Compare to latest offline page revision
-            latest_online_rev = self.mw_get_latest_revision_metadata().id
 
             # If we have the latest revision, fetch it from object storage
             if latest_saved_rev >= latest_online_rev:
@@ -158,8 +157,6 @@ class BulbapediaPage:
                 )
         else:
             logger.info("No saved revisions found. Will fetch from the MediaWiki API.")
-            # Make sure to set latest_online_rev in BOTH branches
-            latest_online_rev = self.mw_get_latest_revision_metadata().id
 
         # If the latest saved revision is not up to date, or we don't have any saved
         # revisions, fetch the latest revision from online and add it to object storage
