@@ -38,21 +38,21 @@ from pathlib import Path
 import pandas as pd
 import wikitextparser as wtp
 
-from pokemon import bulba_utils
+from pokemon import bulba_utils as bp
 from utils import object_store
 
 logger = logging.getLogger(__name__)
 
 
 def extract_wikitables() -> dict:
-    ost_list_page_title = "List of Pokémon music CDs".replace(" ", "_")
+    ost_list_page = bp.BulbapediaPage("List of Pokémon music CDs")
 
     # Get expanded page wikitext
-    wikitext = bulba_utils.get_bp_wikitext(ost_list_page_title)
+    wikitext = ost_list_page.mw_get_wikitext_expanded()
 
     # Save to object store
     # TODO: Implement high-level interface with versioning
-    object_key = "sources/bulbapedia/raw/" + ost_list_page_title
+    object_key = "sources/bulbapedia/raw/" + ost_list_page.get_title()
     wikitext_obj = object_store.get_object(object_key)
 
     wikitext_obj.put(Body=wikitext)
