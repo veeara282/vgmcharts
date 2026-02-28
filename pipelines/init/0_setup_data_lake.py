@@ -4,7 +4,6 @@ import os
 import boto3
 from botocore.exceptions import ClientError
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -13,12 +12,16 @@ def create_bucket_if_not_exists(s3_client, bucket_name):
     try:
         # Check if bucket exists first
         s3_client.head_bucket(Bucket=bucket_name)
-        logger.info(f"Bucket {bucket_name} already exists on object store {s3_endpoint_url}")
+        logger.info(
+            f"Bucket {bucket_name} already exists on object store {s3_endpoint_url}"
+        )
     except ClientError as e:
         # A 404 indicates that the bucket does not exist
-        if e.response['Error']['Code'] == '404':
+        if e.response["Error"]["Code"] == "404":
             s3_client.create_bucket(Bucket=bucket_name)
-            logger.info(f"Created bucket {bucket_name} on object store {s3_endpoint_url}")
+            logger.info(
+                f"Created bucket {bucket_name} on object store {s3_endpoint_url}"
+            )
         else:
             raise
 

@@ -32,22 +32,23 @@ Output to CSV file (for now) or database (once set up).
 """
 
 import logging
-import os
-from pathlib import Path
 
 import pandas as pd
 import wikitextparser as wtp
 
-from pokemon import bulba_utils
+from utils import bulbapedia as bp
+from utils import object_store
+
+logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
 
 def extract_wikitables() -> dict:
-    ost_list_page_title = "List of Pokémon music CDs"
+    ost_list_page = bp.BulbapediaPage("List of Pokémon music CDs")
 
     # Get expanded page wikitext
-    wikitext = bulba_utils.get_bp_wikitext(ost_list_page_title)
+    wikitext = ost_list_page.get_wikitext_expanded()
 
     # Since the tables are nested, we extract the tables at indices 1 and 3.
     # The tables at indices 0 and 2 are tables that contain the main tables.
@@ -76,39 +77,12 @@ def transform_wikitables_to_df(releases_raw: dict) -> dict:
     logger.info("Japanese releases:")
     logger.info(ja_releases_df.head())
 
-    logger.info(os.getcwd())
-    bulba_data_path = Path(os.getcwd(), "data", "bulbapedia")
-    bulba_raw_data_path = bulba_data_path / "raw"
-    bulba_raw_data_path.mkdir(exist_ok=True)
+    object_root = "sources/bulbapedia/extracted_tables/"
+    en_releases_object_key = object_root + "ost_releases_info.en.parquet"
+    ja_releases_object_key = object_root + "ost_releases_info.ja.parquet"
 
-    logger.info(f"Created raw data directory {bulba_raw_data_path}")
-
-    en_releases_csv_path = bulba_raw_data_path / "ost_releases_info.en.csv"
-    ja_releases_csv_path = bulba_raw_data_path / "ost_releases_info.ja.csv"
-
-    # XXX: Temporarily writing data to a directory in the repository so it can be
-    # versioned. We need to check write access, since data files from the repository are
-    # not writable in the Docker environment.
-    # Eventually, we will transition to storing all raw data in a RustFS or equivalent
-    # S3-like datastore.
-    def try_write(path: Path, data: pd.DataFrame, log_msg: str):
-        if os.access(path, os.W_OK):
-            logger.info(log_msg)
-            data.to_csv(path)
-        else:
-            logger.warning(f"Data file {path} is not writable. Write not attempted.")
-
-    try_write(
-        en_releases_csv_path,
-        en_releases_df,
-        f"Writing English release data to {en_releases_csv_path}...",
-    )
-
-    try_write(
-        ja_releases_csv_path,
-        ja_releases_df,
-        f"Writing Japanese release data to {ja_releases_csv_path}...",
-    )
+    object_store.put_dataframe(en_releases_df, en_releases_object_key)
+    object_store.put_dataframe(ja_releases_df, ja_releases_object_key)
 
     return {
         "en": en_releases_df,
