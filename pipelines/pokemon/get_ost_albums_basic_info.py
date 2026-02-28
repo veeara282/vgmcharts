@@ -32,8 +32,6 @@ Output to CSV file (for now) or database (once set up).
 """
 
 import logging
-import os
-from pathlib import Path
 
 import pandas as pd
 import wikitextparser as wtp
