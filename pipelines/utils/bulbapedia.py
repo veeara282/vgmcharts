@@ -2,9 +2,11 @@
 Utility functions for extracting Bulbapedia content
 """
 
+import datetime
 import logging
 from urllib.parse import urlencode
 
+import dateutil
 import requests
 
 logger = logging.getLogger(__name__)
@@ -50,7 +52,24 @@ class BulbapediaPage:
 
         # MediaWiki output will be wrapped in JSON object
         logger.info(f"Downloading page data from {api_url}...\n")
+
+        # The time at which the request began according to the client.
+        # These timestamps help us estimate when the page revision was current, in the
+        # rare event that it changes during the execution of this method.
+        self.mw_request_client_dt = datetime.now(datetime.UTC)
         mw_output_response = requests.get(api_url)
+
+        # Parse server-side datetime in response headers.
+        # Note: The HTTP specification requires the server to provide a date header in
+        # HTTP responses unless the server cannot determine the time.
+        # Note: the header dict accepts case-insensitive keys.
+        response_dt_str = mw_output_response.headers.get("date")
+        if response_dt_str:
+            self.mw_response_server_dt = dateutil.parser.parse(response_dt_str)
+
+        # Compute client-side response time, the time at which the client finished
+        # reading the response (= datetime + timedelta)
+        self.mw_response_client_dt = self.mw_request_client_dt + mw_output_response.elapsed
 
         # Parse JSON and get wikitext
         mw_output_json = mw_output_response.json()
