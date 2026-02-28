@@ -158,9 +158,6 @@ class BulbapediaPage:
         # First check if we have any saved revisions
         saved_revisions = self.s3_list_stored_revisions()
 
-        # Initialize in the current scope
-        latest_online_rev = -1
-
         if len(saved_revisions) > 0:
             latest_saved_rev = max(rev.rev_id for rev in saved_revisions)
             # Compare to latest offline page revision
@@ -178,6 +175,8 @@ class BulbapediaPage:
                 )
         else:
             logger.info("No saved revisions found. Will fetch from the MediaWiki API.")
+            # Make sure to set latest_online_rev in BOTH branches
+            latest_online_rev = self.mw_get_latest_revision_metadata().id
 
         # If the latest saved revision is not up to date, or we don't have any saved
         # revisions, fetch the latest revision from online and add it to object storage
