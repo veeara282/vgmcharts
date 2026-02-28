@@ -90,27 +90,7 @@ class BulbapediaPage:
 
         # MediaWiki output will be wrapped in JSON object
         logger.info(f"Downloading page data from {api_url}...\n")
-
-        # The time at which the request began according to the client.
-        # These timestamps help us estimate when the page revision was current, in the
-        # rare event that it changes during the execution of this method.
-        self.mw_request_client_dt = datetime.datetime.now(datetime.UTC)
         mw_output_response = requests.get(api_url)
-
-        # Parse server-side datetime in response headers.
-        # Note: The server is always required to provide a date header in HTTP responses
-        # unless it cannot determine the time. We collect client-side timestamps in case
-        # the server does not provide one.
-        # Note: the header dict accepts case-insensitive keys.
-        response_dt_str = mw_output_response.headers.get("date")
-        if response_dt_str:
-            self.mw_response_server_dt = dateutil.parser.parse(response_dt_str)
-
-        # Compute client-side response time, the time at which the client finished
-        # reading the response (= datetime + timedelta)
-        self.mw_response_client_dt = (
-            self.mw_request_client_dt + mw_output_response.elapsed
-        )
 
         # Parse JSON and get wikitext
         mw_output_json = mw_output_response.json()
