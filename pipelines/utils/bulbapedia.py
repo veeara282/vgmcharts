@@ -117,16 +117,22 @@ class BulbapediaPage:
         self.wikitext_expanded = mw_output_json["expandtemplates"]["wikitext"]
 
         return self.wikitext_expanded
+    
+    def s3_get_wikitext(self, rev_id: int):
+        # Generate object key with version based on revision ID
+        object_key = (
+            f"sources/bulbapedia/raw/{self.title}/revid={rev_id}.wikitext"
+        )
+        return object_store.get_text(object_key)
 
     def s3_put_wikitext(self):
-        # Generate object key with version based on timestamp
+        # Generate object key with version based on revision ID
         object_key = (
             f"sources/bulbapedia/raw/{self.title}/revid={self.latest_rev.id}.wikitext"
         )
 
         # Upload wikitext to object storage
-        remote_object = object_store.get_object(object_key)
-        remote_object.put(Body=self.wikitext_expanded)
+        object_store.put_text(self.wikitext_expanded, object_key)
         logger.info(
             f"Successfully uploaded wikitext to object storage, key: {object_key}"
         )
@@ -147,3 +153,16 @@ class BulbapediaPage:
                 revisions.append(StoredRevision(self.title, rev_id, key))
 
         return revisions
+    
+    def get_wikitext_expanded(self):
+        # First check if we have any saved revisions
+        saved_revisions = self.s3_list_stored_revisions()
+
+        if len(saved_revisions) > 0:
+            latest_saved_rev = max(rev.rev_id for rev in saved_revisions)
+            # Compare to latest offline page revision
+            latest_online_rev = self.mw_get_latest_revision_metadata()
+
+            # If we have the latest revision, fetch it from object storage
+            if latest_saved_rev >= latest_online_rev:
+                return self.s3_get_wikitext(latest_saved_rev)

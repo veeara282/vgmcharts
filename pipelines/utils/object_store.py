@@ -38,6 +38,27 @@ def list_objects_in_dir(key_prefix, bucket_name=default_bucket):
     return [obj["Key"] for obj in objects["Contents"]]
 
 
+def get_text(
+        object_key: str,
+        bucket_name: str = default_bucket,
+        encoding: str = "utf-8",        
+):
+    s3_object = get_object(object_key, bucket_name)
+    response = s3_object.get()
+    object_content_bytes = response["Body"].read()
+    return object_content_bytes.decode(encoding)
+
+def put_text(
+        text: str,
+        object_key: str,
+        bucket_name: str = default_bucket,
+        encoding: str = "utf-8",
+):
+    s3_object = get_object(object_key, bucket_name)
+    text_as_bytes = text.encode(encoding)
+    s3_object.put(Body=text_as_bytes)
+
+
 def put_dataframe(
     df: pd.DataFrame,
     object_key: str,
