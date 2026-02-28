@@ -28,6 +28,14 @@ class RevisionID:
     id: int
     dt: datetime.datetime
 
+@dataclass
+class StoredRevision:
+    """Contains metadata about a wiki page revision stored in object storage."""
+
+    page_title: str
+    rev_id: int
+    object_key: str
+
 
 def bp_wikitext_api_params(page_title: str) -> dict:
     """
@@ -110,7 +118,7 @@ class BulbapediaPage:
 
     def s3_put_wikitext(self):
         # Generate object key with version based on timestamp
-        object_key = f"sources/bulbapedia/raw/{self.title}/dt={self.mw_response_server_dt.isoformat()}.wikitext"
+        object_key = f"sources/bulbapedia/raw/{self.title}/revid={self.latest_rev.id}.wikitext"
 
         # Upload wikitext to object storage
         remote_object = object_store.get_object(object_key)
@@ -118,3 +126,10 @@ class BulbapediaPage:
         logger.info(
             f"Successfully uploaded wikitext to object storage, key: {object_key}"
         )
+    
+    def s3_list_stored_revisions(self):
+        key_prefix = f"sources/bulbapedia/raw/{self.title}"
+
+        keys_list = object_store.list_objects_in_dir(key_prefix)
+
+        return keys_list

@@ -24,6 +24,20 @@ def get_object(key, bucket_name=default_bucket):
     return s3.Object(bucket_name, key)
 
 
+def list_objects_in_dir(key_prefix, bucket_name=default_bucket):
+    client = boto3.client('s3')
+
+    # Result is a dict containing a list of objects under "Contents"
+    # XXX: By default, only the first 1,000 objects are returned. We do not attempt to
+    # fetch any objects past that for now.
+    objects = client.list_objects_v2(
+        Bucket=bucket_name,
+        Prefix=key_prefix,
+    )
+
+    return [obj["Key"] for obj in objects["Contents"]]
+
+
 def put_dataframe(
     df: pd.DataFrame,
     object_key: str,
