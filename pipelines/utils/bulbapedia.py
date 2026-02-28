@@ -35,14 +35,13 @@ def bp_wikitext_url(page_title: str) -> str:
     return API_BASE_URL + "?" + query_string
 
 
-
 class BulbapediaPage:
     def __init__(self, title: str):
         self.title = title.replace(" ", "_")
-    
+
     def get_title(self):
         return self.title
-    
+
     def mw_get_wikitext_expanded(self):
         """
         Retrieves the expanded wikitext for this page from Bulbapedia using the MediaWiki API.
@@ -52,8 +51,6 @@ class BulbapediaPage:
         # MediaWiki output will be wrapped in JSON object
         logger.info(f"Downloading page data from {api_url}...\n")
         mw_output_response = requests.get(api_url)
-
-
 
         # Parse JSON and get wikitext
         mw_output_json = mw_output_response.json()

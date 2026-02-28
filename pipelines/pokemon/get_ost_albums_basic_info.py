@@ -36,7 +36,7 @@ import logging
 import pandas as pd
 import wikitextparser as wtp
 
-from pokemon import bulba_utils as bp
+from utils import bulbapedia as bp
 from utils import object_store
 
 logger = logging.getLogger(__name__)
