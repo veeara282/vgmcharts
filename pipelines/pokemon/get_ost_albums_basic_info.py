@@ -39,6 +39,8 @@ import wikitextparser as wtp
 from utils import bulbapedia as bp
 from utils import object_store
 
+logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 
@@ -46,10 +48,7 @@ def extract_wikitables() -> dict:
     ost_list_page = bp.BulbapediaPage("List of Pokémon music CDs")
 
     # Get expanded page wikitext
-    wikitext = ost_list_page.mw_get_wikitext_expanded()
-
-    # Save to object store
-    ost_list_page.s3_put_wikitext()
+    wikitext = ost_list_page.get_wikitext_expanded()
 
     # Since the tables are nested, we extract the tables at indices 1 and 3.
     # The tables at indices 0 and 2 are tables that contain the main tables.

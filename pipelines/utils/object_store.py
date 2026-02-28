@@ -35,7 +35,12 @@ def list_objects_in_dir(key_prefix, bucket_name=default_bucket):
         Prefix=key_prefix,
     )
 
-    return [obj["Key"] for obj in objects["Contents"]]
+    # Response may not have a Contents field if there are no results
+    # See https://docs.rustfs.com/developer/sdk/python.html#_4-4-list-objects
+    if "Contents" in objects:
+        return [obj["Key"] for obj in objects["Contents"]]
+    else:
+        return []
 
 
 def get_text(

@@ -94,7 +94,7 @@ class BulbapediaPage:
         # The time at which the request began according to the client.
         # These timestamps help us estimate when the page revision was current, in the
         # rare event that it changes during the execution of this method.
-        self.mw_request_client_dt = datetime.now(datetime.UTC)
+        self.mw_request_client_dt = datetime.datetime.now(datetime.UTC)
         mw_output_response = requests.get(api_url)
 
         # Parse server-side datetime in response headers.
@@ -151,8 +151,15 @@ class BulbapediaPage:
         return revisions
 
     def get_wikitext_expanded(self):
+        """
+        Retrieves the expanded wikitext for this page from object storage, if we have it
+        and it is current, otherwise from the MediaWiki API.
+        """
         # First check if we have any saved revisions
         saved_revisions = self.s3_list_stored_revisions()
+
+        # Initialize in the current scope
+        latest_online_rev = -1
 
         if len(saved_revisions) > 0:
             latest_saved_rev = max(rev.rev_id for rev in saved_revisions)
@@ -161,7 +168,16 @@ class BulbapediaPage:
 
             # If we have the latest revision, fetch it from object storage
             if latest_saved_rev >= latest_online_rev:
+                logger.info(
+                    f"Revision {latest_saved_rev} on object storage is current. Fetching from object storage..."
+                )
                 return self.s3_get_wikitext(latest_saved_rev)
+            else:
+                logger.info(
+                    f"Revision {latest_saved_rev} is not current. Will fetch from the MediaWiki API."
+                )
+        else:
+            logger.info("No saved revisions found. Will fetch from the MediaWiki API.")
 
         # If the latest saved revision is not up to date, or we don't have any saved
         # revisions, fetch the latest revision from online and add it to object storage
