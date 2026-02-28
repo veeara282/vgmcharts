@@ -140,10 +140,10 @@ class BulbapediaPage:
         revisions = []
 
         for key in keys_list:
-            # revision ID is the first capture group
             match = pattern.match(key)
-            rev_id = int(match.group(1))
-
-            revisions.append(StoredRevision(self.title, rev_id, key))
+            if match:
+                # revision ID is the first capture group
+                rev_id = int(match.group(1))
+                revisions.append(StoredRevision(self.title, rev_id, key))
 
         return revisions
