@@ -94,15 +94,21 @@ class BulbapediaPage:
         self.wikitext_expanded = mw_output_json["expandtemplates"]["wikitext"]
 
         return self.wikitext_expanded
+    
+    def _object_key_prefix(self):
+        return f"sources/bulbapedia/raw/{self.title}"
+
+    def _object_key(self, rev_id: int):
+        return self._object_key_prefix() + f"/revid={rev_id}.wikitext"
 
     def s3_get_wikitext(self, rev_id: int):
         # Generate object key with version based on revision ID
-        object_key = f"sources/bulbapedia/raw/{self.title}/revid={rev_id}.wikitext"
+        object_key = self._object_key(rev_id)
         return object_store.get_text(object_key)
 
     def s3_put_wikitext(self, wikitext: str, rev_id: int):
         # Generate object key with version based on revision ID
-        object_key = f"sources/bulbapedia/raw/{self.title}/revid={rev_id}.wikitext"
+        object_key = self._object_key(rev_id)
 
         # Upload wikitext to object storage
         object_store.put_text(wikitext, object_key)
@@ -111,7 +117,7 @@ class BulbapediaPage:
         )
 
     def s3_list_stored_revisions(self):
-        key_prefix = f"sources/bulbapedia/raw/{self.title}"
+        key_prefix = self._object_key_prefix()
 
         keys_list = object_store.list_objects_in_dir(key_prefix)
 
