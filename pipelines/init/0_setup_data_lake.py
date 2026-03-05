@@ -34,7 +34,12 @@ def main() -> None:
 
         # Create the bucket if it doesn't exist
         bucket_name = os.getenv("S3_BUCKET")
-        create_bucket_if_not_exists(s3_client, bucket_name)
+        if bucket_name:
+            create_bucket_if_not_exists(s3_client, bucket_name)
+        else:
+            raise ValueError(
+                "Environment variable S3_BUCKET is not set. Please see instructions in pipelines/README.md for troubleshooting instructions."
+            )
 
         # Put a test object
         s3_client.put_object(
