@@ -24,9 +24,6 @@ To run them from within the Docker container, pass command-line arguments to
 (Make sure to build the container first.) For example:
 
 ```sh
-# Docker (standalone)
-docker run -it vgmcharts-pipelines -m init.0_setup_data_lake --verbose
-
 # Docker Compose
 docker compose run pipelines -m init.0_setup_data_lake --verbose
 ```
