@@ -15,11 +15,11 @@ VALUES
     ('GlitchxCity', '0X1wtVNo8CVrMEKh8y8knH', 'glitchxcity'),
     ('Jonathan Young', '2IeMt1qx6ZVt1HFjdfE5tl', 'jonathan-young'),
     ('Jason Paige', '4C2BnfCRMI8bTf3LlBUljz', 'jason-paige'),
-    ('Ben Dixon and the Sad Truth', NULL, 'ben-dixon-and-the-sad-truth'),
-    ('Ed Goldfarb', NULL, 'ed-goldfarb'),
-    ('Cam Steady', NULL, 'cam-steady'),
-    ('Ty Wild', NULL, 'ty-wild'),
-    ('Cindery', NULL, 'cindery'),
+    ('Ben Dixon and the Sad Truth', '6ep1x3L37GYJ8IHVORMgGj', 'ben-dixon-and-the-sad-truth'),
+    ('Ed Goldfarb', '20v1pWVDGh4qNUlJeoCGef', 'ed-goldfarb'),
+    ('Cam Steady', '0v2ThByhPk4mutkJNv6mue', 'cam-steady'),
+    ('Ty Wild', '2uE23RLfCmZurbJzYgjKMm', 'ty-wild'),
+    ('Cindery', '7uRrPnto4j1qfkBcTv3iKL', 'cindery'),
     ('PokéLoFi Collective', NULL, 'pokelofi-collective')
 ON CONFLICT (slug) DO NOTHING;
 
