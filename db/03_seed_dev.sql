@@ -1,5 +1,5 @@
 -- Development seed data for vgmcharts
--- Mix of real identifiers provided by the user plus clearly synthetic development data.
+-- Mix of real and synthetic development data.
 
 BEGIN;
 
@@ -11,10 +11,10 @@ ON CONFLICT (franchise_id) DO NOTHING;
 
 INSERT INTO artists (artist_name, spotify_artist_id, slug)
 VALUES
-    ('Pokémon', NULL, 'pokemon-official'),
-    ('GlitchxCity', NULL, 'glitchxcity'),
-    ('Jonathan Young', NULL, 'jonathan-young'),
-    ('Jason Paige', NULL, 'jason-paige'),
+    ('Pokémon', '6goK4KMSdP4A8lw8jk4ADk', 'pokemon-official'),
+    ('GlitchxCity', '0X1wtVNo8CVrMEKh8y8knH', 'glitchxcity'),
+    ('Jonathan Young', '2IeMt1qx6ZVt1HFjdfE5tl', 'jonathan-young'),
+    ('Jason Paige', '4C2BnfCRMI8bTf3LlBUljz', 'jason-paige'),
     ('Ben Dixon and the Sad Truth', NULL, 'ben-dixon-and-the-sad-truth'),
     ('Ed Goldfarb', NULL, 'ed-goldfarb'),
     ('Cam Steady', NULL, 'cam-steady'),
@@ -43,7 +43,7 @@ VALUES
         151,
         'album',
         DATE '1999-06-29',
-        10,
+        13,
         '0xdrSLNEZnhSkaYJHnXJyY',
         '8721215934677',
         'Laced Records',
@@ -59,22 +59,35 @@ VALUES
         1,
         '15KpbH3zOW41tc3PkY46cj',
         '199097449127',
-        NULL,
-        NULL,
-        NULL
+        'GlitchxCity',
+        '2024 GlitchxCity',
+        '2024 GlitchxCity'
     ),
     (
         'PokéJon',
         'Jonathan Young release containing Pokémon-inspired covers.',
         151,
-        'album',
-        DATE '2017-01-01',
-        3,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL
+        'compilation',
+        DATE '2017-12-12',
+        10,
+        '2zd9KnWtSZaveHirW4lJFG',
+        '192378254052',
+        'Jonathan Young',
+        '2017 Youngster Multimedia',
+        '2017 Youngster Multimedia'
+    ),
+    (
+        'TEAM YELL',
+        'Team Yell tribute single by Cam Steady.',
+        151,
+        'single',
+        DATE '2024-05-24',
+        1,
+        '73dErkosgaI4b4TCJDYr3S',
+        '198657549352',
+        'Cam Steady, Inc.',
+        '2024 Cam Steady, Inc.',
+        '2024 Cam Steady, Inc.'
     ),
     (
         'Pokemon Sleep Covers EP',
@@ -85,22 +98,9 @@ VALUES
         3,
         'dev_album_001',
         NULL,
-        'Dev Records',
-        '2025 PokéCharts Dev Data',
-        '2025 PokéCharts Dev Data'
-    ),
-    (
-        'TEAM YELL',
-        'Synthetic dev single representing a fan-made original Pokémon-inspired song.',
-        151,
-        'single',
-        DATE '2025-01-10',
-        1,
-        'dev_album_002',
-        NULL,
-        'Dev Records',
-        '2025 PokéCharts Dev Data',
-        '2025 PokéCharts Dev Data'
+        'Team Rocket Records',
+        '2025 Team Rocket Records',
+        '2025 Team Rocket Records'
     ),
     (
         'Pokémon Horizons Fan Mixes',
@@ -109,11 +109,11 @@ VALUES
         'compilation',
         DATE '2025-08-01',
         4,
-        'dev_album_003',
+        'dev_album_002',
         NULL,
-        'Dev Records',
-        '2025 PokéCharts Dev Data',
-        '2025 PokéCharts Dev Data'
+        'Team Skull Records',
+        '2025 Team Skull Records',
+        '2025 Team Skull Records'
     )
 ON CONFLICT DO NOTHING;
 
@@ -215,7 +215,7 @@ VALUES
     (
         'TEAM YELL',
         189000,
-        'XADEV2500004',
+        'QZMEQ2467320',
         151,
         'fan_song'
     ),
@@ -301,8 +301,8 @@ VALUES
     ),
     (
         (SELECT release_id FROM releases WHERE release_title = 'TEAM YELL'),
-        (SELECT recording_id FROM recordings WHERE isrc = 'XADEV2500004'),
-        'dev_track_004',
+        (SELECT recording_id FROM recordings WHERE isrc = 'QZMEQ2467320'),
+        '57lrVtQWflD12qWGPXge9x',
         1,
         1
     ),
@@ -409,7 +409,7 @@ VALUES
         (SELECT t.track_id
          FROM tracks t
          JOIN recordings r ON r.recording_id = t.recording_id
-         WHERE r.isrc = 'XADEV2500004'),
+         WHERE r.isrc = 'QZMEQ2467320'),
         (SELECT artist_id FROM artists WHERE artist_name = 'Cam Steady'),
         'primary',
         1
@@ -418,7 +418,7 @@ VALUES
         (SELECT t.track_id
          FROM tracks t
          JOIN recordings r ON r.recording_id = t.recording_id
-         WHERE r.isrc = 'XADEV2500004'),
+         WHERE r.isrc = 'QZMEQ2467320'),
         (SELECT artist_id FROM artists WHERE artist_name = 'Ty Wild'),
         'featured',
         2
@@ -571,7 +571,7 @@ VALUES
         (SELECT t.track_id
          FROM tracks t
          JOIN recordings r ON r.recording_id = t.recording_id
-         WHERE r.isrc = 'XADEV2500004'),
+         WHERE r.isrc = 'QZMEQ2467320'),
         TIMESTAMPTZ '2026-03-01 00:00:00+00',
         31
     ),
@@ -579,7 +579,7 @@ VALUES
         (SELECT t.track_id
          FROM tracks t
          JOIN recordings r ON r.recording_id = t.recording_id
-         WHERE r.isrc = 'XADEV2500004'),
+         WHERE r.isrc = 'QZMEQ2467320'),
         TIMESTAMPTZ '2026-03-05 00:00:00+00',
         34
     ),
