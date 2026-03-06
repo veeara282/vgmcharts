@@ -91,6 +91,7 @@ def transform_wikitables_to_df(releases_raw: dict) -> dict:
 
 
 def main() -> None:
+    object_store.create_bucket_if_not_exists()
     releases_raw = extract_wikitables()
     transform_wikitables_to_df(releases_raw)
 

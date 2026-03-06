@@ -94,7 +94,7 @@ class BulbapediaPage:
         self.wikitext_expanded = mw_output_json["expandtemplates"]["wikitext"]
 
         return self.wikitext_expanded
-    
+
     def _object_key_prefix(self):
         return f"sources/bulbapedia/raw/{self.title}"
 
