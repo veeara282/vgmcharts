@@ -20,7 +20,8 @@ VALUES
     ('Cam Steady', '0v2ThByhPk4mutkJNv6mue', 'cam-steady'),
     ('Ty Wild', '2uE23RLfCmZurbJzYgjKMm', 'ty-wild'),
     ('Cindery', '7uRrPnto4j1qfkBcTv3iKL', 'cindery'),
-    ('PokéLoFi Collective', NULL, 'pokelofi-collective')
+    ('PokéLoFi Collective', NULL, 'pokelofi-collective'),
+    ('No Copyright Music', NULL, 'no-copyright-music')
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO releases (
@@ -114,6 +115,19 @@ VALUES
         'Team Skull Records',
         '2025 Team Skull Records',
         '2025 Team Skull Records'
+    ),
+    (
+        'Mystery Zone Lofi Remix',
+        'Mysterious single with no copyright notice.',
+        151,
+        'single',
+        DATE '2025-12-31',
+        1,
+        'dev_album_003',
+        NULL,
+        'No Copyright Music',
+        NULL,
+        NULL
     )
 ON CONFLICT DO NOTHING;
 
@@ -157,6 +171,12 @@ VALUES
     (
         (SELECT release_id FROM releases WHERE release_title = 'Pokémon Horizons Fan Mixes'),
         (SELECT artist_id FROM artists WHERE artist_name = 'Pokémon'),
+        'primary',
+        1
+    ),
+    (
+        (SELECT release_id FROM releases WHERE release_title = 'Mystery Zone Lofi Remix'),
+        (SELECT artist_id FROM artists WHERE artist_name = 'No Copyright Music'),
         'primary',
         1
     )
@@ -246,6 +266,13 @@ VALUES
         'XADEV2500008',
         151,
         'fan_song'
+    ),
+    (
+        'Mystery Zone Lofi Remix',
+        238000,
+        'XADEV2500009',
+        151,
+        'fan_cover'
     )
 ON CONFLICT DO NOTHING;
 
@@ -333,6 +360,13 @@ VALUES
         'dev_track_008',
         1,
         4
+    ),
+    (
+        (SELECT release_id FROM releases WHERE release_title = 'Mystery Zone Lofi Remix'),
+        (SELECT recording_id FROM recordings WHERE isrc = 'XADEV2500009'),
+        'dev_track_009',
+        1,
+        1
     )
 ON CONFLICT DO NOTHING;
 
@@ -474,6 +508,15 @@ VALUES
          JOIN recordings r ON r.recording_id = t.recording_id
          WHERE r.isrc = 'XADEV2500008'),
         (SELECT artist_id FROM artists WHERE artist_name = 'Cam Steady'),
+        'primary',
+        1
+    ),
+    (
+        (SELECT t.track_id
+         FROM tracks t
+         JOIN recordings r ON r.recording_id = t.recording_id
+         WHERE r.isrc = 'XADEV2500009'),
+        (SELECT artist_id FROM artists WHERE artist_name = 'No Copyright Music'),
         'primary',
         1
     )

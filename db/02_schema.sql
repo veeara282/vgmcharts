@@ -17,7 +17,10 @@ CREATE TABLE artists (
     artist_name TEXT NOT NULL,
     spotify_artist_id TEXT UNIQUE,
     slug TEXT UNIQUE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT artists_name_not_blank CHECK (btrim(artist_name) <> ''),
+    CONSTRAINT artists_spotify_artist_id_not_blank CHECK (spotify_artist_id IS NULL OR btrim(spotify_artist_id) <> ''),
+    CONSTRAINT artists_slug_not_blank CHECK (slug IS NULL OR btrim(slug) <> '')
 );
 
 CREATE TABLE releases (
@@ -36,7 +39,15 @@ CREATE TABLE releases (
     copyright_c TEXT,
     copyright_p TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT releases_total_tracks_positive CHECK (total_tracks IS NULL OR total_tracks > 0)
+    CONSTRAINT releases_total_tracks_positive CHECK (total_tracks IS NULL OR total_tracks > 0),
+    CONSTRAINT releases_title_not_blank CHECK (btrim(release_title) <> ''),
+    CONSTRAINT releases_upc_not_blank CHECK (upc IS NULL OR btrim(upc) <> ''),
+    CONSTRAINT releases_ean_not_blank CHECK (ean IS NULL OR btrim(ean) <> ''),
+    CONSTRAINT releases_spotify_album_id_not_blank CHECK (spotify_album_id IS NULL OR btrim(spotify_album_id) <> ''),
+    CONSTRAINT releases_jp_catalog_no_not_blank CHECK (jp_catalog_no IS NULL OR btrim(jp_catalog_no) <> ''),
+    CONSTRAINT releases_label_name_not_blank CHECK (label_name IS NULL OR btrim(label_name) <> ''),
+    CONSTRAINT releases_copyright_c_not_blank CHECK (copyright_c IS NULL OR btrim(copyright_c) <> ''),
+    CONSTRAINT releases_copyright_p_not_blank CHECK (copyright_p IS NULL OR btrim(copyright_p) <> '')
 );
 
 CREATE TABLE release_artwork (
@@ -45,7 +56,9 @@ CREATE TABLE release_artwork (
     url TEXT NOT NULL,
     width INTEGER,
     height INTEGER,
-    PRIMARY KEY (release_id, source)
+    PRIMARY KEY (release_id, source),
+    CONSTRAINT release_artwork_width_positive CHECK (width IS NULL OR width > 0),
+    CONSTRAINT release_artwork_height_positive CHECK (height IS NULL OR height > 0)
 );
 
 CREATE TABLE recordings (
@@ -56,7 +69,9 @@ CREATE TABLE recordings (
     franchise_id INTEGER NOT NULL REFERENCES franchises (franchise_id),
     category recording_category_enum NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT recordings_duration_positive CHECK (duration_ms IS NULL OR duration_ms > 0)
+    CONSTRAINT recordings_duration_positive CHECK (duration_ms IS NULL OR duration_ms > 0),
+    CONSTRAINT recordings_title_not_blank CHECK (btrim(recording_title) <> ''),
+    CONSTRAINT recordings_isrc_not_blank CHECK (isrc IS NULL OR btrim(isrc) <> '')
 );
 
 CREATE TABLE release_artists (
@@ -65,7 +80,8 @@ CREATE TABLE release_artists (
     artist_role artist_role_enum NOT NULL DEFAULT 'primary',
     artist_order INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY (release_id, artist_id, artist_role),
-    CONSTRAINT release_artists_artist_order_positive CHECK (artist_order > 0)
+    CONSTRAINT release_artists_artist_order_positive CHECK (artist_order > 0),
+    CONSTRAINT release_artists_release_artist_order_unique UNIQUE (release_id, artist_order)
 );
 
 CREATE TABLE tracks (
@@ -78,6 +94,7 @@ CREATE TABLE tracks (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT tracks_disc_positive CHECK (disc_number > 0),
     CONSTRAINT tracks_track_positive CHECK (track_number > 0),
+    CONSTRAINT tracks_spotify_track_id_not_blank CHECK (spotify_track_id IS NULL OR btrim(spotify_track_id) <> ''),
     CONSTRAINT tracks_release_disc_track_unique UNIQUE (release_id, disc_number, track_number),
     CONSTRAINT tracks_release_recording_unique UNIQUE (release_id, recording_id)
 );
@@ -88,7 +105,8 @@ CREATE TABLE tracks_artists (
     artist_role artist_role_enum NOT NULL DEFAULT 'primary',
     artist_order INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY (track_id, artist_id, artist_role),
-    CONSTRAINT tracks_artists_artist_order_positive CHECK (artist_order > 0)
+    CONSTRAINT tracks_artists_artist_order_positive CHECK (artist_order > 0),
+    CONSTRAINT tracks_artists_track_artist_order_unique UNIQUE (track_id, artist_order)
 );
 
 CREATE TABLE tracks_popularity (
