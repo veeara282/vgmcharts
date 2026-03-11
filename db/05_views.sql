@@ -80,12 +80,11 @@ JOIN release_artwork ra
 -- type and release date. This is used to determine which album artwork to show for each
 -- recording in the UI.
 -- The logic for determining the canonical release is as follows:
--- 1. Singles are preferred over EPs, which are preferred over albums, which are
---    preferred over compilations, which are preferred over unknown release types.
+-- 1. Singles are preferred over EPs, then albums, then compilations.
 -- 2. If there are multiple releases of the same type, the earliest release date is
 --    preferred (with undated releases ranked last).
--- 3. If there are still multiple releases tied after applying the above rules,
---    release_id and track_id are used as tiebreakers to ensure a deterministic result.
+-- 3. If there are still multiple releases tied after applying the above rules, release_id
+--    and track_id are used as arbitrary tiebreakers to ensure a deterministic result.
 -- Only one row should be returned per recording.
 CREATE OR REPLACE VIEW recording_canonical_release AS
 SELECT *
