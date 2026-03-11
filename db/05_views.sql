@@ -2,7 +2,7 @@ BEGIN;
 
 -- Convenience view mapping recordings to artists, including recording details and
 -- artist details.
-CREATE VIEW recordings_artists AS
+CREATE OR REPLACE VIEW recordings_artists AS
 SELECT DISTINCT
     r.recording_id,
     r.recording_title,
@@ -27,7 +27,7 @@ JOIN artists a
 -- Note that the copyright_c and copyright_p fields from releases are intentionally
 -- excluded from this view, as copyright strings pertain to each release as a whole
 -- rather than individual recordings.
-CREATE VIEW recording_appearances AS
+CREATE OR REPLACE VIEW recording_appearances AS
 SELECT
     r.recording_id,
     r.recording_title,
@@ -56,7 +56,7 @@ JOIN releases rel
 
 -- Convenience view for getting the album artwork for a given track.
 -- In addition to join keys, some fields (title, ISRC) are included for easier debugging.
-CREATE VIEW track_release_artwork AS
+CREATE OR REPLACE VIEW track_release_artwork AS
 SELECT
     r.recording_id,
     r.recording_title,
@@ -87,7 +87,7 @@ JOIN release_artwork ra
 -- 3. If there are still multiple releases tied after applying the above rules,
 --    release_id and track_id are used as tiebreakers to ensure a deterministic result.
 -- Only one row should be returned per recording.
-CREATE VIEW recording_canonical_release AS
+CREATE OR REPLACE VIEW recording_canonical_release AS
 SELECT *
 FROM (
     SELECT
@@ -124,7 +124,7 @@ WHERE rn = 1;
 -- Convenience view for getting the canonical album artwork for a given recording using
 -- the method implemented in the recording_canonical_release view above.
 -- In addition to join keys, some fields (title, ISRC) are included for easier debugging.
-CREATE VIEW recording_canonical_artwork AS
+CREATE OR REPLACE VIEW recording_canonical_artwork AS
 SELECT
     cr.recording_id,
     cr.recording_title,
