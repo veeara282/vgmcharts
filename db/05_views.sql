@@ -121,9 +121,14 @@ FROM (
 ) ranked
 WHERE rn = 1;
 
+-- Convenience view for getting the canonical album artwork for a given recording using
+-- the method implemented in the recording_canonical_release view above.
+-- In addition to join keys, some fields (title, ISRC) are included for easier debugging.
 CREATE VIEW recording_canonical_artwork AS
 SELECT
     cr.recording_id,
+    cr.recording_title,
+    cr.isrc,
     cr.track_id,
     cr.release_id,
     cr.release_title,
