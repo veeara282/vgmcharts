@@ -5,7 +5,7 @@ services:
   # Recommended settings borrowed from https://www.bitdoze.com/rustfs-self-host/
 
   objectstore:
-    image: rustfs/rustfs:latest
+    image: rustfs/rustfs:1.0.0-alpha.88
     ports:
       - "${S3_PORT}:${S3_PORT}"  # S3 interface
       - "${RUSTFS_CONSOLE_PORT}:${RUSTFS_CONSOLE_PORT}"  # web console
