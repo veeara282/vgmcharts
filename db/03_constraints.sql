@@ -114,6 +114,7 @@ DECLARE
 BEGIN
     v_recording_id := COALESCE(NEW.recording_id, OLD.recording_id);
 
+    -- Check if there are any rows in tracks matching the recording_id; if not, raise exception with ISRC
     IF NOT EXISTS (
         SELECT 1
         FROM tracks t
