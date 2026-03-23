@@ -40,6 +40,7 @@ services:
       AWS_ENDPOINT_URL_S3: ${S3_ENDPOINT}
       AWS_DEFAULT_REGION: us-east-1
       S3_BUCKET: ${S3_BUCKET}
+      PIPELINES_CRAWLER_CONTACT: ${PIPELINES_CRAWLER_CONTACT}
     depends_on:
       db:
         condition: service_healthy
