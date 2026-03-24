@@ -62,6 +62,7 @@ def to_dataframes(result_set: ResultSet) -> dict[str, pd.DataFrame]:
                 release_groups_df
                 .rename(columns={"id": "release_group_id"})
                 .rename(columns=lambda x: x.replace("-", "_"))
+                .reset_index(drop=True)
             )
             normalized_dfs["release_groups"] = release_groups_df
 
