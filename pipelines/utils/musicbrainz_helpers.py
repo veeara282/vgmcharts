@@ -5,7 +5,6 @@ import tomllib
 import musicbrainzngs as mbz
 import pandas as pd
 
-
 type ResultSet = dict[str, list[dict]]
 
 
@@ -49,20 +48,16 @@ def to_dataframes(result_set: ResultSet) -> dict[str, pd.DataFrame]:
 
         # Check if release groups were returned in this result set
         if "release-group" in releases_df.columns:
-            has_release_group = (
-                releases_df["release-group"].apply(lambda x: isinstance(x, dict))
+            has_release_group = releases_df["release-group"].apply(
+                lambda x: isinstance(x, dict)
             )
 
             # Extract release groups into a separate DataFrame
-            release_groups_df = pd.json_normalize(
-                releases_df.loc[has_release_group, "release-group"]
-            ).drop_duplicates(subset=["id"])
-
             release_groups_df = (
-                release_groups_df
+                pd.json_normalize(releases_df.loc[has_release_group, "release-group"])
+                .drop_duplicates(subset=["id"], ignore_index=True)
                 .rename(columns={"id": "release_group_id"})
                 .rename(columns=lambda x: x.replace("-", "_"))
-                .reset_index(drop=True)
             )
             normalized_dfs["release_groups"] = release_groups_df
 
@@ -77,3 +72,49 @@ def to_dataframes(result_set: ResultSet) -> dict[str, pd.DataFrame]:
         normalized_dfs["releases"] = releases_df
 
     return normalized_dfs
+
+
+def combine_datasets(*dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataFrame]:
+    # Combines multiple normalized datasets into a single dataset, merging DataFrames
+    # with the same name and concatenating rows.
+    if len(dfs) == 1:
+        return dfs[0]
+    if len(dfs) == 0:
+        raise ValueError("At least one dataset expected")
+
+    combined_dfs: dict[str, pd.DataFrame] = {}
+    grouped_dfs: dict[str, list[pd.DataFrame]] = {}
+
+    # Group DataFrames by name across all datasets
+    for dataset in dfs:
+        for name, df in dataset.items():
+            # Append DataFrame to the list if it exists, otherwise append to empty list
+            grouped_dfs.setdefault(name, []).append(df)
+
+    for name, frames in grouped_dfs.items():
+        # If there is only one DataFrame for this name, no need to do anything
+        if len(frames) == 1:
+            combined_dfs[name] = frames[0]
+            continue
+
+        # First combine all rows into a new DataFrame
+        merged_df = pd.concat(frames, ignore_index=True, sort=False)
+
+        # DataFrame may contain multiple "id" columns (primary and foreign keys), so we
+        # deduplicate based on all of them. There should always be at least one "id"
+        # column, but we implement a fallback just in case.
+        keys = [
+            column
+            for column in merged_df.columns
+            if column == "id" or column.endswith("_id")
+        ]
+
+        if keys:
+            merged_df = merged_df.drop_duplicates(subset=keys, ignore_index=True)
+        else:
+            # Fallback behavior (if no "id" columns found): just drop duplicate rows
+            merged_df = merged_df.drop_duplicates(ignore_index=True)
+
+        combined_dfs[name] = merged_df
+
+    return combined_dfs

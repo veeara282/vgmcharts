@@ -15,18 +15,24 @@ def get_ost_releases():
 
     tpc_releases = mbz.browse_releases(
         label=tpc_label,
-        includes=["release-groups"]  # use release groups to help identify releases of the same game soundtrack
-    ) #: ReleaseList
+        includes=[
+            "release-groups"
+        ],  # use release groups to help identify releases of the same game soundtrack
+    )  #: ReleaseList
 
     game_freak_artist = "88c8f9c2-763b-45c9-863f-da3c7c6c8fd1"  # Game Freak
 
     game_freak_releases = mbz.browse_releases(
-        artist=game_freak_artist,
-        includes=["release-groups"]
-    ) #: ReleaseList
+        artist=game_freak_artist, includes=["release-groups"]
+    )  #: ReleaseList
 
-    # TODO Merge and deduplicate these release lists
+    tpc_data_normalized = mbz_helpers.to_dataframes(tpc_releases)
+    game_freak_data_normalized = mbz_helpers.to_dataframes(game_freak_releases)
 
+    combined_data = mbz_helpers.combine_datasets(
+        tpc_data_normalized, game_freak_data_normalized
+    )
+    return combined_data
 
 
 def main():
