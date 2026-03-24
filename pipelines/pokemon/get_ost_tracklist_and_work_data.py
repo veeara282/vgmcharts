@@ -61,6 +61,19 @@ def main():
     combined_releases = get_ost_releases()
     main_series_releases = filter_main_series(combined_releases["releases"])
 
+    # Filter for official worldwide and Japanese releases - these have the most complete
+    # metadata, including ISRCs and links to underlying musical works.
+    # The worldwide release entries on MusicBrainz (country code "XW") include English
+    # track titles, which are useful for matching OST musical works to fan-made covers.
+    english_releases = main_series_releases[
+        main_series_releases["country"] == "XW"
+        & main_series_releases["status"] == "Official"
+    ]
+    japanese_releases = main_series_releases[
+        main_series_releases["country"] == "JP"
+        & main_series_releases["status"] == "Official"
+    ]
+
 
 if __name__ == "__main__":
     main()
