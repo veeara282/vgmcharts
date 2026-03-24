@@ -19,12 +19,13 @@ def get_ost_releases():
         includes=[
             "release-groups"
         ],  # use release groups to help identify releases of the same game soundtrack
+        limit=100,
     )  #: ReleaseList
 
     game_freak_artist = "88c8f9c2-763b-45c9-863f-da3c7c6c8fd1"  # Game Freak
 
     game_freak_releases = mbz.browse_releases(
-        artist=game_freak_artist, includes=["release-groups"]
+        artist=game_freak_artist, includes=["release-groups"], limit=100
     )  #: ReleaseList
 
     tpc_data_normalized = mbz_helpers.to_dataframes(tpc_releases)
@@ -37,14 +38,20 @@ def get_ost_releases():
 
 
 def filter_main_series(df: pd.DataFrame) -> pd.DataFrame:
-    # Only keep titles matching "Pokemon" and "Super Music [Collection/Complete]"
-    # (or their Japanese equivalents).
+    # Filter for main series Pokémon OSTs based on title and disambiguation fields.
     # This function can take either the releases or the release_groups DataFrame as
     # input, since they both have the same "title" field.
     return df[
+        # Filter titles matching "Pokémon" and...
         df["title"].str.contains("Pok[eé]mon|ポケモン|ポケットモンスター")
-        & df["title"].str.contains(
-            "Super Music|スーパーミュージック|ミュージック・スーパー"
+        & (
+            # either "Super Music [Collection/Complete]" (or similar) in the title,
+            # or "Nintendo Music" in the disambiguation
+            df["title"].str.contains("Super Music|スーパー|ミュージック")
+            | (
+                ~df["disambiguation"].isna()
+                & df["disambiguation"].str.contains("Nintendo Music")
+            )
         )
     ].reset_index(drop=True)
 
