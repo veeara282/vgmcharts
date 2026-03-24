@@ -1,6 +1,7 @@
 import logging
 
 import musicbrainzngs as mbz
+import pandas as pd
 
 import utils.musicbrainz_helpers as mbz_helpers
 
@@ -35,9 +36,23 @@ def get_ost_releases():
     return combined_data
 
 
+def filter_main_series(df: pd.DataFrame) -> pd.DataFrame:
+    # Only keep titles matching "Pokemon" and "Super Music [Collection/Complete]"
+    # (or their Japanese equivalents).
+    # This function can take either the releases or the release_groups DataFrame as
+    # input, since they both have the same "title" field.
+    return df[
+        df["title"].str.contains("Pok[eé]mon|ポケモン|ポケットモンスター")
+        & df["title"].str.contains(
+            "Super Music|スーパーミュージック|ミュージック・スーパー"
+        )
+    ].reset_index(drop=True)
+
+
 def main():
     mbz_helpers.setup()
     combined_releases = get_ost_releases()
+    main_series_releases = filter_main_series(combined_releases["releases"])
 
 
 if __name__ == "__main__":
