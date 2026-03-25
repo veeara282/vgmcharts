@@ -12,20 +12,32 @@ logger = logging.getLogger(__name__)
 
 
 def get_ost_releases():
-    tpc_label = "e19f9e2b-4dd5-4f52-9e3c-46b678986698"  # The Pokémon Company (Japan)
+    # Get MusicBrainz release entries linked to either The Pokémon Company as label
+    # or Game Freak as artist.
+    # We filter for official release entries on MusicBrainz as they have more complete
+    # metadata (including ISRCs, underlying musical works, and composer credits), and
+    # exclude "bootleg" releases such as gamerips.
+    # We also query release groups as they may be helpful for matching English and
+    # Japanese releases of the same game soundtrack.
+
+    # The Pokémon Company (Japan)
+    tpc_label = "e19f9e2b-4dd5-4f52-9e3c-46b678986698"
 
     tpc_releases = mbz.browse_releases(
         label=tpc_label,
-        includes=[
-            "release-groups"
-        ],  # use release groups to help identify releases of the same game soundtrack
-        limit=100,
+        includes=["release-groups"],
+        release_status="official",
+        limit=100,  # the maximum size of a single API results page
     )  #: ReleaseList
 
-    game_freak_artist = "88c8f9c2-763b-45c9-863f-da3c7c6c8fd1"  # Game Freak
+    # Game Freak
+    game_freak_artist = "88c8f9c2-763b-45c9-863f-da3c7c6c8fd1"
 
     game_freak_releases = mbz.browse_releases(
-        artist=game_freak_artist, includes=["release-groups"], limit=100
+        artist=game_freak_artist,
+        includes=["release-groups"],
+        release_status="official",
+        limit=100,
     )  #: ReleaseList
 
     tpc_data_normalized = mbz_helpers.to_dataframes(tpc_releases)
@@ -58,21 +70,17 @@ def filter_main_series(df: pd.DataFrame) -> pd.DataFrame:
 
 def main():
     mbz_helpers.setup()
+
+    # First download all official release entries linked to The Pokémon Company or
+    # Game Freak as label or artist, then filter for Pokémon main series relevance.
     combined_releases = get_ost_releases()
     main_series_releases = filter_main_series(combined_releases["releases"])
 
-    # Filter for official worldwide and Japanese releases - these have the most complete
-    # metadata, including ISRCs and links to underlying musical works.
+    # Separate out English and Japanese releases based on country code ("XW", "JP").
     # The worldwide release entries on MusicBrainz (country code "XW") include English
     # track titles, which are useful for matching OST musical works to fan-made covers.
-    english_releases = main_series_releases[
-        main_series_releases["country"] == "XW"
-        & main_series_releases["status"] == "Official"
-    ]
-    japanese_releases = main_series_releases[
-        main_series_releases["country"] == "JP"
-        & main_series_releases["status"] == "Official"
-    ]
+    english_releases = main_series_releases[main_series_releases["country"] == "XW"]
+    japanese_releases = main_series_releases[main_series_releases["country"] == "JP"]
 
 
 if __name__ == "__main__":
