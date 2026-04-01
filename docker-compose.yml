@@ -44,6 +44,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    profiles:
+      # Prevent service from starting automatically when running `docker compose up`
+      - no-autostart
 
 volumes:
   pgdata:
