@@ -41,6 +41,8 @@ services:
       AWS_DEFAULT_REGION: us-east-1
       S3_BUCKET: ${S3_BUCKET}
       PIPELINES_CRAWLER_CONTACT: ${PIPELINES_CRAWLER_CONTACT}
+    volumes:
+      - pipeline-data:${PIPELINES_DATA_DIR}
     depends_on:
       db:
         condition: service_healthy
@@ -51,3 +53,4 @@ services:
 volumes:
   pgdata:
   objdata:
+  pipeline-data:
