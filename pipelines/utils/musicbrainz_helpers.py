@@ -31,45 +31,53 @@ def setup():
     # Set default rate limit (1 request per second)
     mbz.set_rate_limit(limit_or_interval=1.0, new_requests=1)
 
+    # Use JSON API
+    # mbz.set_format("json")
+
 
 def to_dataframes(result_set: ResultSet) -> dict[str, pd.DataFrame]:
     # Extracts all list-based result sets into separate DataFrames, and normalizes
     # nested objects into separate DataFrames with foreign key relationships.
-    # Currently, this function only handles the "release-list" result set and its nested
+    # Currently, this function only handles the "releases" result set and its nested
     # "release-group" objects.
     normalized_dfs: dict[str, pd.DataFrame] = {}
 
-    if "release-list" in result_set:
+    # Look for either "releases" or "release-list" key - "releases" is returned by the
+    # JSON parser whereas "release-list" is returned by the XML parser.
+    if "releases" in result_set:
+        release_list = result_set["releases"]
+    elif "release-list" in result_set:
         release_list = result_set["release-list"]
-        releases_df = pd.json_normalize(release_list, max_level=0)
 
-        # Rename primary key now
-        releases_df = releases_df.rename(columns={"id": "release_id"})
+    releases_df = pd.json_normalize(release_list, max_level=0)
 
-        # Check if release groups were returned in this result set
-        if "release-group" in releases_df.columns:
-            has_release_group = releases_df["release-group"].apply(
-                lambda x: isinstance(x, dict)
-            )
+    # Rename primary key now
+    releases_df = releases_df.rename(columns={"id": "release_id"})
 
-            # Extract release groups into a separate DataFrame
-            release_groups_df = (
-                pd.json_normalize(releases_df.loc[has_release_group, "release-group"])
-                .drop_duplicates(subset=["id"], ignore_index=True)
-                .rename(columns={"id": "release_group_id"})
-                .rename(columns=lambda x: x.replace("-", "_"))
-            )
-            normalized_dfs["release_groups"] = release_groups_df
+    # Check if release groups were returned in this result set
+    if "release-group" in releases_df.columns:
+        has_release_group = releases_df["release-group"].apply(
+            lambda x: isinstance(x, dict)
+        )
 
-            # Replace nested object with FK
-            releases_df["release_group_id"] = releases_df["release-group"].apply(
-                lambda x: x.get("id") if isinstance(x, dict) else pd.NA
-            )
+        # Extract release groups into a separate DataFrame
+        release_groups_df = (
+            pd.json_normalize(releases_df.loc[has_release_group, "release-group"])
+            .drop_duplicates(subset=["id"], ignore_index=True)
+            .rename(columns={"id": "release_group_id"})
+            .rename(columns=lambda x: x.replace("-", "_"))
+        )
+        normalized_dfs["release_groups"] = release_groups_df
 
-            releases_df = releases_df.drop(columns=["release-group"])
+        # Replace nested object with FK
+        releases_df["release_group_id"] = releases_df["release-group"].apply(
+            lambda x: x.get("id") if isinstance(x, dict) else pd.NA
+        )
 
-        releases_df = releases_df.rename(columns=lambda x: x.replace("-", "_"))
-        normalized_dfs["releases"] = releases_df
+        releases_df = releases_df.drop(columns=["release-group"])
+
+    releases_df = releases_df.rename(columns=lambda x: x.replace("-", "_"))
+    normalized_dfs["releases"] = releases_df
 
     return normalized_dfs
 
