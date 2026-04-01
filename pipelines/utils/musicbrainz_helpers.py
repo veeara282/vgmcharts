@@ -82,6 +82,14 @@ def to_dataframes(result_set: ResultSet) -> dict[str, pd.DataFrame]:
     return normalized_dfs
 
 
+def write_dataset(dataset: dict[str, pd.DataFrame], output_dir: Path):
+    # Writes each DataFrame in the dataset to a separate CSV file in the output
+    # directory.
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for name, df in dataset.items():
+        df.to_parquet(output_dir / f"{name}.parquet", index=False)
+
+
 def combine_datasets(*dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataFrame]:
     # Combines multiple normalized datasets into a single dataset, merging DataFrames
     # with the same name and concatenating rows.

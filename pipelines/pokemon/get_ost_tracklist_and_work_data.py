@@ -1,14 +1,17 @@
+from datetime import datetime
 import logging
+from os import mkdir
 
 import musicbrainzngs as mbz
 import pandas as pd
 
+from utils.local_io import DATA_DIR
 import utils.musicbrainz_helpers as mbz_helpers
 
 logger = logging.getLogger(__name__)
 
 # Uncomment this line to show debug logs from musicbrainzngs
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 
 def get_ost_releases():
@@ -71,16 +74,35 @@ def filter_main_series(df: pd.DataFrame) -> pd.DataFrame:
 def main():
     mbz_helpers.setup()
 
+    # Construct the directory path for this pipeline run using the current timestamp
+    # in ISO 8601 format with milliseconds precision, e.g. "2026-03-05T12:34:56.789".
+    dt = datetime.now().isoformat(timespec="milliseconds")
+    data_dir_for_run = DATA_DIR / "pokemon_ost_data" / dt
+
     # First download all official release entries linked to The Pokémon Company or
     # Game Freak as label or artist, then filter for Pokémon main series relevance.
     combined_releases = get_ost_releases()
+    mbz_helpers.write_dataset(combined_releases, data_dir_for_run / "all_releases")
+
+    # Prepare directory for filtered datasets
+    main_series_releases_dir = data_dir_for_run / "main_series_releases"
+    main_series_releases_dir.mkdir(parents=True, exist_ok=True)
+
+    # Note: This function returns a single DataFrame, so the standard to_parquet() method
+    # is used here instead of the mbz_helpers.write_dataset() function.
     main_series_releases = filter_main_series(combined_releases["releases"])
+    main_series_releases.to_parquet(
+        main_series_releases_dir / "all.parquet", index=False
+    )
 
     # Separate out English and Japanese releases based on country code ("XW", "JP").
     # The worldwide release entries on MusicBrainz (country code "XW") include English
     # track titles, which are useful for matching OST musical works to fan-made covers.
     english_releases = main_series_releases[main_series_releases["country"] == "XW"]
     japanese_releases = main_series_releases[main_series_releases["country"] == "JP"]
+
+    english_releases.to_parquet(main_series_releases_dir / "en.parquet", index=False)
+    japanese_releases.to_parquet(main_series_releases_dir / "ja.parquet", index=False)
 
 
 if __name__ == "__main__":
