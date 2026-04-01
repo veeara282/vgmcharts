@@ -11,7 +11,10 @@ import utils.musicbrainz_helpers as mbz_helpers
 logger = logging.getLogger(__name__)
 
 # Uncomment this line to show debug logs from musicbrainzngs
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 
 
 def get_ost_releases():
