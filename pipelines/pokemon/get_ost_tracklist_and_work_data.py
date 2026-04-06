@@ -84,15 +84,17 @@ def main():
 
     # First download all official release entries linked to The Pokémon Company or
     # Game Freak as label or artist, then filter for Pokémon main series relevance.
+    # This function returns a dictionary of DataFrames, which are written to the same
+    # directory using the mbz_helpers.write_dataset() function.
     combined_releases = get_ost_releases()
     mbz_helpers.write_dataset(combined_releases, data_dir_for_run / "all_releases")
 
-    # Prepare directory for filtered datasets
+    # Prepare directory for filtered datasets.
+    # Each filtering step returns a single DataFrame, so the standard to_parquet()
+    # method is used here instead of mbz_helpers.write_dataset().
     main_series_releases_dir = data_dir_for_run / "main_series_releases"
     main_series_releases_dir.mkdir(parents=True, exist_ok=True)
 
-    # Note: This function returns a single DataFrame, so the standard to_parquet() method
-    # is used here instead of the mbz_helpers.write_dataset() function.
     main_series_releases = filter_main_series(combined_releases["releases"])
     main_series_releases.to_parquet(
         main_series_releases_dir / "all.parquet", index=False
